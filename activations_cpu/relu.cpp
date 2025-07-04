@@ -8,6 +8,7 @@ torch::Tensor relu_cpu(torch::Tensor input, const bool in_place = false) {
 
     float* __restrict__ in_data = input.data_ptr<float>();
     const int N = input.numel();
+    const int N8 = N-8;
 
     if (in_place) {
         #pragma omp parallel
@@ -16,7 +17,7 @@ torch::Tensor relu_cpu(torch::Tensor input, const bool in_place = false) {
 
             #pragma omp for
             for (int i = 0; i < N; i += 8) {
-                if (i + 8 <= N) {
+                if (i <= N8) {
                     __m256 x = _mm256_loadu_ps(in_data + i);
                     __m256 y = _mm256_max_ps(x, zero);
                     _mm256_storeu_ps(in_data + i, y);
@@ -42,7 +43,7 @@ torch::Tensor relu_cpu(torch::Tensor input, const bool in_place = false) {
 
             #pragma omp for
             for (int i = 0; i < N; i += 8) {
-                if (i + 8 <= N) {
+                if (i <= N8) {
                     __m256 x = _mm256_loadu_ps(in_data + i);
                     __m256 y = _mm256_max_ps(x, zero);
                     _mm256_storeu_ps(out_data + i, y);

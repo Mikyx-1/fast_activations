@@ -2,12 +2,12 @@
 #include <immintrin.h>  // AVX2 intrinsics
 #include <omp.h>        // OpenMP
 
-torch::Tensor relu_cpu(torch::Tensor input, bool in_place = false) {
+torch::Tensor relu_cpu(torch::Tensor input, const bool in_place = false) {
     TORCH_CHECK(input.device().is_cpu(), "Input tensor must be on CPU");
     TORCH_CHECK(input.dtype() == torch::kFloat32, "Input tensor must be float32");
 
-    float* in_data = input.data_ptr<float>();
-    int N = input.numel();
+    float* __restrict__ in_data = input.data_ptr<float>();
+    const int N = input.numel();
 
     if (in_place) {
         #pragma omp parallel
@@ -34,7 +34,7 @@ torch::Tensor relu_cpu(torch::Tensor input, bool in_place = false) {
 
     } else {
         torch::Tensor output = torch::empty_like(input);
-        float* out_data = output.data_ptr<float>();
+        float* __restrict__ out_data = output.data_ptr<float>();
 
         #pragma omp parallel
         {

@@ -7,7 +7,7 @@ device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 dummy = torch.randn((2000, 10000), device=device)
 
 NUM_ITERS = 10000
-in_place = True
+in_place = False
 
 tic = time.time()
 for _ in range(NUM_ITERS):
@@ -22,7 +22,7 @@ print(f"Duration: {toc - tic}")
 
 tic = time.time()
 for _ in range(NUM_ITERS):
-    res1 = F.relu(dummy, in_place)
+    F.relu(dummy, in_place)
 toc = time.time()
 
 torch.cuda.synchronize()
